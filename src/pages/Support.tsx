@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import SectionHeading from "@/components/SectionHeading";
@@ -125,7 +126,6 @@ const Support = () => (
         </div>
       </div>
     </section>
-    </div>
   </div>
 );
 

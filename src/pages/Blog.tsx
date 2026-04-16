@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import GlassCard from "@/components/GlassCard";
 import SectionHeading from "@/components/SectionHeading";
 import { ChevronRight } from "lucide-react";
@@ -104,7 +105,6 @@ const Blog = () => (
         </div>
       </div>
     </section>
-    </div>
   </div>
 );
 

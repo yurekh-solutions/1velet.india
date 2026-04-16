@@ -11,7 +11,12 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
-    allowedHosts: ["onevelet-india.onrender.com"],
+    allowedHosts: [
+      "onevelet-india.onrender.com",
+      "localhost",
+      ".onrender.com",
+      ".vercel.app",
+    ],
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
