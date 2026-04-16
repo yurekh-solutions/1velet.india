@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 40" fill="white">
+  <text x="0" y="32" font-family="'Arial', sans-serif" font-size="30" font-weight="400" letter-spacing="8">O</text>
+  <rect x="32" y="4" width="1" height="32" fill="white" opacity="0.4"/>
+  <text x="38" y="32" font-family="'Arial', sans-serif" font-size="30" font-weight="400" letter-spacing="8">X</text>
+  <rect x="72" y="4" width="1" height="32" fill="white" opacity="0.4"/>
+  <text x="78" y="32" font-family="'Arial', sans-serif" font-size="30" font-weight="400" letter-spacing="8">F</text>
+  <rect x="108" y="4" width="1" height="32" fill="white" opacity="0.4"/>
+  <text x="114" y="32" font-family="'Arial', sans-serif" font-size="30" font-weight="400" letter-spacing="8">O</text>
+  <rect x="150" y="4" width="1" height="32" fill="white" opacity="0.4"/>
+  <text x="156" y="32" font-family="'Arial', sans-serif" font-size="30" font-weight="400" letter-spacing="8">R</text>
+  <rect x="190" y="4" width="1" height="32" fill="white" opacity="0.4"/>
+  <text x="196" y="32" font-family="'Arial', sans-serif" font-size="30" font-weight="400" letter-spacing="8">D</text>
+</svg>
