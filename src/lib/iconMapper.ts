@@ -1,0 +1,66 @@
+import { 
+  TrendingUp, 
+  Building2, 
+  Users, 
+  Smartphone, 
+  Shield, 
+  Zap, 
+  Globe, 
+  Target, 
+  ArrowRight,
+  CheckCircle2,
+  BarChart3,
+  IndianRupee,
+  Rocket,
+  Award,
+  Calendar,
+  MapPin,
+  Brain,
+  Wifi,
+  Lock,
+  Package,
+  Camera,
+  PieChart,
+  LineChart,
+  Activity,
+  DollarSign,
+  ArrowUpRight,
+  ArrowDownRight,
+  LucideIcon
+} from "lucide-react";
+
+// Map icon names to actual components
+const iconMap: Record<string, LucideIcon> = {
+  TrendingUp,
+  Building2,
+  Users,
+  Smartphone,
+  Shield,
+  Zap,
+  Globe,
+  Target,
+  ArrowRight,
+  CheckCircle2,
+  BarChart3,
+  IndianRupee,
+  Rocket,
+  Award,
+  Calendar,
+  MapPin,
+  Brain,
+  Wifi,
+  Lock,
+  Package,
+  Camera,
+  PieChart,
+  LineChart,
+  Activity,
+  DollarSign,
+  ArrowUpRight,
+  ArrowDownRight,
+};
+
+// Get icon component by name
+export function getIconByName(iconName: string): LucideIcon {
+  return iconMap[iconName] || BarChart3; // Default to BarChart3 if not found
+}

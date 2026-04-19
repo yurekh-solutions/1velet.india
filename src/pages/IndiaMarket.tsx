@@ -28,7 +28,10 @@ import {
   Activity,
   DollarSign,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Loader2,
+  AlertCircle,
+  RefreshCw
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -41,6 +44,8 @@ import SectionHeading from "@/components/SectionHeading";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import { AnimatedValue, Sparkline } from "@/components/IndiaSharedComponents";
 import IndiaNavigation from "@/components/IndiaNavigation";
+import { getIconByName } from "@/lib/iconMapper";
+import { useIndiaMarketData, useRefreshMarketData } from "@/hooks/useIndiaMarketData";
 
 // India-specific images from local assets
 import mumbaiSkyline from "@/assets/mumbai-skyline.jpg";
@@ -53,213 +58,15 @@ import heroBuilding from "@/assets/hero-building.jpg";
 import indiaBuilding from "@/assets/india-building.jpg";
 import indiaHeatmap from "@/assets/india-heatmap.jpg";
 
-
-
-// --- Chart Data ---
-const marketSizeData = [
-  { year: "2024", value: 1.3 },
-  { year: "2025", value: 1.66 },
-  { year: "2026", value: 2.1 },
-  { year: "2027", value: 2.7 },
-  { year: "2028", value: 3.3 },
-  { year: "2029", value: 3.8 },
-  { year: "2030", value: 4.29 },
-];
-
-const smartHomeData = [
-  { year: "2024", value: 5.2 },
-  { year: "2025", value: 6.8 },
-  { year: "2026", value: 8.8 },
-  { year: "2027", value: 11.4 },
-  { year: "2028", value: 14.9 },
-  { year: "2029", value: 17.1 },
-  { year: "2030", value: 19.3 },
-];
-
-const regionData = [
-  { name: "Mumbai MMR", projects: 3200, growth: 28, color: "#f97316" },
-  { name: "Bangalore", projects: 2800, growth: 32, color: "#22c55e" },
-  { name: "Delhi NCR", projects: 4500, growth: 24, color: "#3b82f6" },
-  { name: "Hyderabad", projects: 1900, growth: 35, color: "#a855f7" },
-  { name: "Pune", projects: 1600, growth: 22, color: "#ec4899" },
-  { name: "Chennai", projects: 1200, growth: 20, color: "#14b8a6" },
-];
-
-const segmentPie = [
-  { name: "Luxury Residential", value: 35, color: "hsl(82, 53%, 53%)" },
-  { name: "Integrated Townships", value: 25, color: "hsl(160, 60%, 50%)" },
-  { name: "Student Housing", value: 20, color: "hsl(220, 70%, 55%)" },
-  { name: "Senior Living", value: 12, color: "hsl(45, 80%, 55%)" },
-  { name: "Commercial", value: 8, color: "hsl(0, 70%, 55%)" },
-];
-
-const chartGrowthData = [
-  { year: "2025", buildings: 75, residents: 25, revenue: 20 },
-  { year: "2026", buildings: 300, residents: 100, revenue: 80 },
-  { year: "2027", buildings: 700, residents: 300, revenue: 200 },
-  { year: "2028", buildings: 1200, residents: 750, revenue: 450 },
-  { year: "2030", buildings: 3000, residents: 2000, revenue: 800 },
-];
-
-const radarData = [
-  { capability: "AI/ML", valet: 95, competitors: 30 },
-  { capability: "Hardware", valet: 90, competitors: 65 },
-  { capability: "Integration", valet: 92, competitors: 40 },
-  { capability: "Scale", valet: 88, competitors: 35 },
-  { capability: "UX", valet: 94, competitors: 50 },
-  { capability: "Security", valet: 96, competitors: 55 },
-];
-
-const adoptionData = [
-  { month: "Jan", signups: 120, activeUsers: 95, retention: 82 },
-  { month: "Feb", signups: 180, activeUsers: 150, retention: 85 },
-  { month: "Mar", signups: 250, activeUsers: 210, retention: 87 },
-  { month: "Apr", signups: 340, activeUsers: 300, retention: 89 },
-  { month: "May", signups: 480, activeUsers: 420, retention: 91 },
-  { month: "Jun", signups: 620, activeUsers: 560, retention: 93 },
-];
-
-const cityRegions = [
-  { city: "Mumbai MMR", projects: "3,200+", growth: "28%", cagr: "28% CAGR", population: "21M", premium: "850+", img: mumbaiSkyline, color: "#f97316", trend: [28, 32, 35, 40, 48, 55, 62] },
-  { city: "Bangalore", projects: "2,800+", growth: "32%", cagr: "32% CAGR", population: "12M", premium: "720+", img: bangaloreTech, color: "#22c55e", trend: [24, 30, 38, 44, 52, 60, 68] },
-  { city: "Delhi NCR", projects: "4,500+", growth: "24%", cagr: "24% CAGR", population: "32M", premium: "1,100+", img: delhiSkyline, color: "#3b82f6", trend: [35, 38, 42, 48, 54, 60, 65] },
-  { city: "Hyderabad", projects: "1,900+", growth: "35%", cagr: "35% CAGR", population: "10M", premium: "480+", img: hyderabadSkyline, color: "#a855f7", trend: [18, 24, 32, 42, 52, 64, 78] },
-  { city: "Pune", projects: "1,600+", growth: "22%", cagr: "22% CAGR", population: "7M", premium: "390+", img: puneSkyline, color: "#ec4899", trend: [15, 18, 22, 28, 34, 40, 46] },
-  { city: "Chennai", projects: "1,200+", growth: "20%", cagr: "20% CAGR", population: "11M", premium: "310+", img: chennaiSkyline, color: "#14b8a6", trend: [12, 15, 18, 22, 26, 30, 35] },
-];
-
-const tooltipStyle = {
-  contentStyle: { background: "hsl(220 20% 10%)", border: "1px solid hsl(220 15% 18%)", borderRadius: "0.5rem", color: "#f2f2f2", fontSize: 12 },
-  labelStyle: { color: "hsl(82, 53%, 53%)" },
+// Image mapping for city regions
+const cityImages: Record<string, string> = {
+  "Mumbai MMR": mumbaiSkyline,
+  "Bangalore": bangaloreTech,
+  "Delhi NCR": delhiSkyline,
+  "Hyderabad": hyderabadSkyline,
+  "Pune": puneSkyline,
+  "Chennai": chennaiSkyline,
 };
-
-const marketDrivers = [
-  {
-    icon: TrendingUp,
-    title: "Rapid Urbanization",
-    stat: "675M",
-    desc: "Urban population by 2030, driving demand for smart residential and commercial spaces",
-    impact: "High"
-  },
-  {
-    icon: Smartphone,
-    title: "Digital Adoption Surge",
-    stat: "42%",
-    desc: "Smartphone penetration enabling app-based building management and digital keyless entry",
-    impact: "Critical"
-  },
-  {
-    icon: Building2,
-    title: "Premium Real Estate Boom",
-    stat: "12,000+",
-    desc: "Luxury and premium projects launching annually requiring integrated smart building solutions",
-    impact: "High"
-  },
-  {
-    icon: Shield,
-    title: "Security & Safety Mandates",
-    stat: "89%",
-    desc: "Homebuyers prioritize advanced security systems and touchless entry post-pandemic",
-    impact: "Critical"
-  }
-];
-
-const competitiveAdvantages = [
-  {
-    icon: Zap,
-    title: "Unified Platform Advantage",
-    desc: "While Indian market relies on fragmented vendors (intercom + access control + app = 3-5 contracts), 1VALET offers ONE platform — reducing vendor management by 70% and integration costs by 60%.",
-    stat: "60% cost reduction",
-    color: "from-green-500/20 to-emerald-500/20"
-  },
-  {
-    icon: Brain,
-    title: "AI-Powered Intelligence",
-    desc: "Patented package scanning, facial recognition, and predictive maintenance — technology 5-7 years ahead of current Indian solutions. No local competitor offers this depth of AI integration.",
-    stat: "5-7 years ahead",
-    color: "from-blue-500/20 to-cyan-500/20"
-  },
-  {
-    icon: Globe,
-    title: "Proven Global Scale",
-    desc: "600+ buildings, 150k+ residents across North America and Middle East. Battle-tested platform with 99.99% uptime. Indian developers get enterprise-grade technology from day one.",
-    stat: "600+ buildings live",
-    color: "from-purple-500/20 to-pink-500/20"
-  },
-  {
-    icon: IndianRupee,
-    title: "Hardware-Agnostic ROI",
-    desc: "No costly rewiring or hardware replacement. Integrates with existing Salto, Yale, OTIS, Yardi systems. Retrofit-friendly approach saves ₹50-80 lakhs per building vs. full system replacement.",
-    stat: "₹50-80L savings/building",
-    color: "from-orange-500/20 to-red-500/20"
-  }
-];
-
-const marketGaps = [
-  {
-    problem: "Fragmented Technology Stacks",
-    current: "Developers juggle 5-7 vendors: intercom, access control, CCTV, property management, resident app, payment gateway, smart lockers",
-    solution: "1VALET unifies all into ONE platform — one contract, one dashboard, one team",
-    impact: "70% reduction in vendor management complexity"
-  },
-  {
-    problem: "High Integration Costs",
-    current: "Custom integrations between disparate systems cost ₹2-5 crores per project and take 6-12 months",
-    solution: "Pre-built integrations with Yardi, RealPage, Salto, OTIS — plug-and-play in 2-4 weeks",
-    impact: "80% faster deployment, 60% cost savings"
-  },
-  {
-    problem: "Poor Resident Experience",
-    current: "Residents use 4-5 different apps: one for intercom, one for payments, one for maintenance, one for amenities",
-    solution: "Single 1VALET app: digital keys, video calls, rent payments, amenity booking, maintenance, community messaging",
-    impact: "4x daily app opens vs. industry average 0.5x"
-  },
-  {
-    problem: "Limited AI & Automation",
-    current: "Indian solutions offer basic features — no facial recognition, no package scanning, no predictive analytics",
-    solution: "AI-powered facial recognition, patented package scanning, predictive maintenance, energy optimization",
-    impact: "Reduces concierge costs by 40%, package theft by 95%"
-  }
-];
-
-const growthProjections = [
-  { year: "2025", buildings: "50-75", residents: "25,000+", revenue: "₹15-20 Cr", milestone: "Launch in Mumbai, Bangalore, Delhi NCR" },
-  { year: "2026", buildings: "200-300", residents: "100,000+", revenue: "₹60-80 Cr", milestone: "Expand to Pune, Hyderabad, Chennai" },
-  { year: "2027", buildings: "500-700", residents: "300,000+", revenue: "₹150-200 Cr", milestone: "Pan-India presence, local manufacturing" },
-  { year: "2028", buildings: "1,200+", residents: "750,000+", revenue: "₹350-450 Cr", milestone: "Market leader in premium segment" },
-  { year: "2030", buildings: "3,000+", residents: "2,000,000+", revenue: "₹800 Cr+", milestone: "Dominant smart building platform" }
-];
-
-const targetSegments = [
-  {
-    segment: "Luxury Residential Towers",
-    market: "Mumbai (South Mumbai, Bandra, Worli), Delhi NCR (Gurgaon, Noida), Bangalore (Indiranagar, Whitefield)",
-    opportunity: "800-1,200 premium projects launching 2025-2027",
-    pain: "High concierge costs (₹8-12L/month), security concerns, fragmented tech",
-    value: "Reduce staffing by 40%, increase property value by 15-20%"
-  },
-  {
-    segment: "Integrated Townships",
-    market: "Hyderabad (Gachibowli, Financial District), Pune (Hinjewadi, Baner), Chennai (OMR)",
-    opportunity: "200+ mega townships with 5,000-20,000 units each",
-    pain: "Multi-building management complexity, inconsistent resident experience",
-    value: "Unified dashboard for 10-50 buildings, consistent 5-star experience"
-  },
-  {
-    segment: "Student Housing & PGs",
-    market: "Kota, Pune, Bangalore, Delhi — 50M+ student population",
-    opportunity: "Organized student housing growing at 25% CAGR",
-    pain: "High tenant turnover, access control challenges, manual processes",
-    value: "Automated move-in/move-out, digital keys, reduces admin costs by 60%"
-  },
-  {
-    segment: "Senior Living Communities",
-    market: "Bangalore, Pune, Goa — 150M+ senior population by 2030",
-    opportunity: "Senior living projects growing at 20% CAGR",
-    pain: "Safety concerns, emergency response, accessibility",
-    value: "Facial recognition entry, emergency alerts, simplified app interface"
-  }
-];
 
 const IndiaMarket = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -267,6 +74,76 @@ const IndiaMarket = () => {
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]); 
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const [activeRegion, setActiveRegion] = useState<number | null>(null);
+
+  // Fetch dynamic data using React Query hooks
+  const { data: marketData, isLoading, error, refetch } = useIndiaMarketData();
+  const refreshData = useRefreshMarketData();
+
+  // Handle data refresh
+  const handleRefresh = async () => {
+    await refreshData();
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+          <p className="text-lg text-muted-foreground">Loading India Market Data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold mb-2">Failed to load market data</h2>
+          <p className="text-muted-foreground mb-4">{error.message}</p>
+          <button
+            onClick={handleRefresh}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:brightness-110 transition-all"
+          >
+            <RefreshCw className="w-4 h-4" /> Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Ensure we have data
+  if (!marketData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-muted-foreground">No market data available</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Destructure data for easier access
+  const {
+    marketSizeData,
+    smartHomeData,
+    regionData,
+    segmentPie,
+    chartGrowthData,
+    radarData,
+    adoptionData,
+    cityRegions,
+    marketDrivers,
+    competitiveAdvantages,
+    marketGaps,
+    growthProjections,
+    targetSegments,
+    lastUpdated,
+    dataSource
+  } = marketData;
 
   return (
   <div className="min-h-screen">
@@ -296,8 +173,13 @@ const IndiaMarket = () => {
           </h1>
           <p className="mt-6 text-muted-foreground text-base sm:text-lg lg:text-xl max-w-2xl leading-relaxed">
             Data-driven analysis of why 1VALET's unified smart building platform is positioned to capture
-            India's $4.29B proptech market.
+            India's ${marketData.marketSizeData[marketData.marketSizeData.length - 1]?.value.toFixed(2)}B proptech market.
           </p>
+          {dataSource && dataSource !== 'fallback' && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Last updated: {new Date(lastUpdated).toLocaleDateString()} • Source: {dataSource}
+            </p>
+          )}
         </motion.div>
   
         {/* Key Metrics */}
@@ -341,7 +223,10 @@ const IndiaMarket = () => {
               <GlassCard className="p-4 sm:p-6">
                 <div className="flex items-start gap-3 sm:gap-4">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <driver.icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                    {(() => {
+                      const IconComponent = getIconByName(driver.icon);
+                      return <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />;
+                    })()}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1 sm:mb-2">
@@ -386,7 +271,10 @@ const IndiaMarket = () => {
             >
               <GlassCard className="p-5 sm:p-8 h-full">
                 <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br ${adv.color} flex items-center justify-center mb-4 sm:mb-6`}>
-                  <adv.icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+                  {(() => {
+                    const IconComponent = getIconByName(adv.icon);
+                    return <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />;
+                  })()}
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold font-display mb-3 sm:mb-4">{adv.title}</h3>
                 <p className="text-muted-foreground leading-relaxed mb-6">{adv.desc}</p>
@@ -495,12 +383,22 @@ const IndiaMarket = () => {
     {/* Power BI Analytics Dashboard */}
     <section className="section-padding bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 border-t border-border">
       <div className="max-w-7xl mx-auto">
-        <SectionHeading
-          badge="LIVE ANALYTICS"
-          title="India market"
-          highlight="intelligence dashboard."
-          description="Real-time market analytics and growth projections powered by advanced data science methodologies."
-        />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-12">
+          <SectionHeading
+            badge="LIVE ANALYTICS"
+            title="India market"
+            highlight="intelligence dashboard."
+            description="Real-time market analytics and growth projections powered by advanced data science methodologies."
+          />
+          <button
+            onClick={handleRefresh}
+            className="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-lg hover:border-primary/30 transition-all text-sm"
+            title="Refresh data"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Refresh Data</span>
+          </button>
+        </div>
 
         {/* Dashboard Grid */}
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-12">
@@ -581,40 +479,38 @@ const IndiaMarket = () => {
 
         {/* Regional Analytics */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-4 sm:mt-6">
-          {[
-            { city: "Mumbai MMR", projects: "3,200+", growth: "28% CAGR", color: "from-orange-500/20 to-red-500/20", img: mumbaiSkyline },
-            { city: "Bangalore", projects: "2,800+", growth: "32% CAGR", color: "from-green-500/20 to-emerald-500/20", img: bangaloreTech },
-            { city: "Delhi NCR", projects: "4,500+", growth: "24% CAGR", color: "from-blue-500/20 to-cyan-500/20", img: delhiSkyline },
-            { city: "Hyderabad", projects: "1,900+", growth: "35% CAGR", color: "from-purple-500/20 to-pink-500/20", img: hyderabadSkyline }
-          ].map((region, idx) => (
-            <motion.div
-              key={region.city}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-            >
-              <GlassCard className="overflow-hidden">
-                <div className="relative h-24 sm:h-32">
-                  <img src={region.img} alt={region.city} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
-                  <div className="absolute bottom-3 left-3">
-                    <h4 className="text-lg font-bold font-display">{region.city}</h4>
+          {cityRegions.slice(0, 4).map((region, idx) => {
+            const imgUrl = cityImages[region.city] || heroBuilding;
+            return (
+              <motion.div
+                key={region.city}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+              >
+                <GlassCard className="overflow-hidden">
+                  <div className="relative h-24 sm:h-32">
+                    <img src={imgUrl} alt={region.city} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+                    <div className="absolute bottom-3 left-3">
+                      <h4 className="text-lg font-bold font-display">{region.city}</h4>
+                    </div>
                   </div>
-                </div>
-                <div className="p-3 sm:p-4">
-                  <div className="flex justify-between items-center mb-1 sm:mb-2">
-                    <span className="text-sm text-muted-foreground">Projects</span>
-                    <span className="font-bold">{region.projects}</span>
+                  <div className="p-3 sm:p-4">
+                    <div className="flex justify-between items-center mb-1 sm:mb-2">
+                      <span className="text-sm text-muted-foreground">Projects</span>
+                      <span className="font-bold">{region.projects}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Growth</span>
+                      <span className="font-bold text-gradient">{region.growth}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Growth</span>
-                    <span className="font-bold text-gradient">{region.growth}</span>
-                  </div>
-                </div>
-              </GlassCard>
-            </motion.div>
-          ))}
+                </GlassCard>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
